@@ -1,9 +1,11 @@
 const express = require("express");
 const { connectToDb, getDb } = require("./db");
+const { ObjectId } = require("mongodb");
 const cors = require("cors");
 
 //init app and middleware
 const app = express();
+app.use(express.json());
 
 app.use(cors());
 
@@ -38,5 +40,35 @@ app.get("/sitters", (req, res) => {
     })
     .catch(() => {
       res.status(500).json({ error: "Couldn't fetch the documents" });
+    });
+});
+
+//Fetching a single document with sitters
+
+app.get("/sitters/:id", (req, res) => {
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection("sitters")
+      .findOne({ _id: new ObjectId(req.params.id) })
+      .then((doc) => {
+        res.status(200).json(doc);
+      })
+      .catch((err) => {
+        res.status(500).json({ error: "Couldn't fetch the document" });
+      });
+  } else {
+    res.status(500).json({ error: "Not valid document id" });
+  }
+});
+
+app.post("/sitters", (req, res) => {
+  const sitter = req.body;
+
+  db.collection("sitters")
+    .insertOne(sitter)
+    .then((result) => {
+      res.status(201).json(result);
+    })
+    .catch((err) => {
+      res.status(500).json({ err: "Could not create a new document" });
     });
 });
