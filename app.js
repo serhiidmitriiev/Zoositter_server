@@ -30,10 +30,16 @@ connectToDb((err) => {
 
 //routes
 app.get("/sitters", (req, res) => {
+  const page = req.query.p || 0;
+
+  const sittersPerPage = 4;
+
   let sitters = [];
 
   db.collection("sitters")
     .find()
+    .skip(page * sittersPerPage)
+    .limit(sittersPerPage)
     .forEach((sitter) => sitters.push(sitter))
     .then(() => {
       res.status(200).json(sitters);
