@@ -72,3 +72,35 @@ app.post("/sitters", (req, res) => {
       res.status(500).json({ err: "Could not create a new document" });
     });
 });
+
+app.delete("/sitters/:id", (req, res) => {
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection("sitters")
+      .deleteOne({ _id: new ObjectId(req.params.id) })
+      .then((result) => {
+        res.status(200).json(result);
+      })
+      .catch((err) => {
+        res.status(500).json({ error: "Couldn't delete the document" });
+      });
+  } else {
+    res.status(500).json({ error: "Not a valid doc id" });
+  }
+});
+
+app.patch("/sitters/:id", (req, res) => {
+  const updates = req.body;
+
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection("sitters")
+      .updateOne({ _id: new ObjectId(req.params.id) }, { $set: updates })
+      .then((result) => {
+        res.status(200).json(result);
+      })
+      .catch((err) => {
+        res.status(500).json({ error: "Couldn't update the document" });
+      });
+  } else {
+    res.status(500).json({ error: "Not a valid doc id" });
+  }
+});
